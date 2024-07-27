@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         locTextView = findViewById(R.id.loc)
         tempTextView = findViewById(R.id.temp)
         conditionTextView = findViewById(R.id.condition)
-        iconImageView = findViewById(R.id.icon) // Update ID according to your ImageView's ID
+        iconImageView = findViewById(R.id.icon)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         createLocationRequest()
@@ -61,45 +61,15 @@ class MainActivity : AppCompatActivity() {
             startLocationUpdates()
             getLastLocation()
         }
-
-//        val apiKey = "590bb090775143bda99102504242707"
-//        val location = "lebanon"
-//
-//        ApiClient.retrofitInstance.getCurrentWeather(apiKey, location).enqueue(object : Callback<WeatherResponse> {
-//            override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-//                if (response.isSuccessful) {
-//                    val weatherResponse = response.body()
-//                    Log.d("MainActivitySuccess", "Weather: $weatherResponse")
-//                    // Handle the weather data
-//                    // Update UI with the location name
-//                    locTextView.text = weatherResponse?.location?.name
-//                    // Optionally update other TextViews with temperature and condition
-//                    tempTextView.text = "${weatherResponse?.current?.temp_c} °C"
-//                    conditionTextView.text = weatherResponse?.current?.condition?.text
-//
-//
-//
-//                } else {
-//                    Log.e("MainActivityError", "Failed to get response")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-//                Log.e("MainActivityFailed", "Error: ${t.message}")
-//            }
-//        })
     }
-
-
 
     private fun createLocationRequest() {
         locationRequest = LocationRequest.create().apply {
-            interval = 10000 // 10 seconds
-            fastestInterval = 5000 // 5 seconds
+            interval = 1000// 1 seconds
+            fastestInterval = 500 // 0.5 seconds
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY // High accuracy
         }
     }
-
 
     private fun startLocationUpdates() {
         locationCallback = object : LocationCallback() {
@@ -107,7 +77,7 @@ class MainActivity : AppCompatActivity() {
                 for (location in locationResult.locations) {
                     if (location != null) {
                         // Use the updated location
-                        getWeatherData(location.latitude, location.longitude)
+                        getWeatherData(location.latitude.toFloat(), location.longitude.toFloat())
                     }
                 }
             }
@@ -127,20 +97,13 @@ class MainActivity : AppCompatActivity() {
                 android.Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
                 // Get the latitude and longitude
-                val latitude = location.latitude
-                val longitude = location.longitude
+                val latitude = location.latitude.toFloat()
+                val longitude = location.longitude.toFloat()
                 // Use latitude and longitude to get weather information
                 getWeatherData(latitude, longitude)
             } else {
@@ -149,8 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun getWeatherData(latitude: Double, longitude: Double) {
+    private fun getWeatherData(latitude: Float, longitude: Float) {
         val apiKey = "590bb090775143bda99102504242707"
         val location = "$latitude,$longitude" // Format for the API
 
@@ -204,7 +166,6 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -219,5 +180,4 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
-
 }
